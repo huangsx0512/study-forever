@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false" scan="true" scanPeriod="1 seconds">
+    <contextName>logback</contextName>
+
+    <property name="forever.path" value="/usr/local/forever/logs/forever.log"/>
+    <!--塔安-升降机塔机日志-->
+    <property name="forever.taan.path" value="/usr/local/forever/logs/forever.taan.log"/>
+    <property name="forever.error.path" value="/usr/local/forever/logs/forever.error.log"/>
+    <property name="historyLogPath" value="/usr/local/forever/logs/history"/>
+  
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>
+                %d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="forever" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${forever.path}</file>
+        <!-- 过滤日志 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>  <!-- 如果命中就禁止这条日志 -->
+            <onMismatch>ACCEPT</onMismatch>  <!-- 如果没有命中就使用这条规则 -->
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${historyLogPath}/%d{yyyy-MM-dd}/forever.zip</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{36} [%file : %line] %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="forever-error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${forever.error.path}</file>
+        <!-- 过滤日志 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${historyLogPath}/%d{yyyy-MM-dd}/forever-error.zip</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{36} [%file : %line] %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="com.study" level="INFO" additivity="false">
+        <appender-ref ref="forever" />
+        <appender-ref ref="forever-error"/>
+    </logger>
+
+    <logger name="org.springframework" level="INFO" additivity="false">
+        <appender-ref ref="forever" />
+        <appender-ref ref="forever-error"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="forever"/>
+        <appender-ref ref="forever-error"/>
+    </root>
+</configuration>
