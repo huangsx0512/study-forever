@@ -10,6 +10,6 @@ public class Student {
     private Integer studentId;
     private String name;
     private Integer age;
-    private String grade;
+    private Integer grade;
 
 }
